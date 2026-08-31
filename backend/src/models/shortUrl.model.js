@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const shortUrlSchema = new mongoose.Schema({
-  full_url: {
+  long_url: {
     type: String,
     required: true,
   },
@@ -13,7 +13,6 @@ const shortUrlSchema = new mongoose.Schema({
   },
   clicks: {
     type: Number,
-    required: true,
     default: 0,
   },
   user: {
