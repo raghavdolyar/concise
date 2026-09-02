@@ -9,7 +9,7 @@ const validateUrl = [
     .isURL({ require_protocol: true })
     .withMessage('Please provide a valid URL including http:// or https://'),
   body('slug')
-    .optional()
+    .optional({ checkFalsy: true })
     .isString()
     .isLength({ min: 3, max: 20 })
     .withMessage('Custom slug must be between 3 and 20 characters'),

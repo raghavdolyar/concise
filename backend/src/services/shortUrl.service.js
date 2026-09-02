@@ -3,10 +3,17 @@ import {
   getCustomShortUrl,
   saveShortUrl,
   getShortUrlByLongUrlAndUser,
+  getAnonymousShortUrlByLongUrl,
 } from '../dao/shortUrl.js';
 import APIError from '../utils/APIError.js';
 
 export const createShortUrlWithoutUser = async url => {
+  // Anonymous Deduplication check (Global Deduplication)
+  const existingUrl = await getAnonymousShortUrlByLongUrl(url);
+  if (existingUrl) {
+    return existingUrl.short_url;
+  }
+
   let attempts = 0;
   const maxAttempts = 3;
 
@@ -28,7 +35,7 @@ export const createShortUrlWithoutUser = async url => {
 };
 
 export const createShortUrlWithUser = async (url, userId, slug = null) => {
-  // deduplication check: if no custom slug, check if they already shortened this URL
+  // Deduplication check: if no custom slug, check if they already shortened this URL
   if (!slug) {
     const existingUrl = await getShortUrlByLongUrlAndUser(url, userId);
     if (existingUrl) {

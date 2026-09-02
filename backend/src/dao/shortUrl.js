@@ -33,3 +33,11 @@ export const getCustomShortUrl = async slug => {
 export const getShortUrlByLongUrlAndUser = async (longUrl, userId) => {
   return await urlSchema.findOne({ long_url: longUrl, user: userId });
 };
+
+export const getAnonymousShortUrlByLongUrl = async longUrl => {
+  // find a URL that matches the long_url and does NOT have a user associated with it
+  return await urlSchema.findOne({
+    long_url: longUrl,
+    user: { $exists: false },
+  });
+};
