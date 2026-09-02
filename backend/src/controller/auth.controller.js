@@ -9,7 +9,7 @@ export const registerUser = asyncHandler(async (req, res) => {
 
   req.user = user;
   res.cookie('accessToken', token, cookieOptions);
-  res.status(200).json(new APIResponse(200, null, 'register success'));
+  res.status(200).json(new APIResponse(200, user, 'register success'));
 });
 
 export const loginUser = asyncHandler(async (req, res) => {

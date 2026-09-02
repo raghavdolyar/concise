@@ -3,8 +3,13 @@ import { signToken } from '../utils/helper.js';
 import APIError from '../utils/APIError.js';
 
 export const registerUserAuth = async (name, email, password) => {
-  const user = await User.findOne({ email });
-  if (user) throw new APIError(409, 'User already exists');
+  const user = await User.findOne({ $or: [{ email }, { name }] });
+  if (user) {
+    if (user.email === email)
+      throw new APIError(409, 'User with this email already exists');
+    if (user.name === name)
+      throw new APIError(409, 'Username is already taken');
+  }
 
   const newUser = await User.create({ name, email, password });
   const token = signToken({ id: newUser._id });

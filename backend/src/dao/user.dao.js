@@ -1,5 +1,5 @@
 import User from '../models/user.model.js';
-import UrlModel from '../models/url.model.js';
+import Url from '../models/url.model.js';
 
 export const findUserByEmail = async email => {
   return await User.findOne({ email });
@@ -20,5 +20,9 @@ export const createUser = async (name, email, password) => {
 };
 
 export const getAllUserUrlsDao = async id => {
-  return await UrlModel.find({ user: id });
+  return await Url.find({ user: id });
+};
+
+export const deleteUserUrlDao = async (urlId, userId) => {
+  return await Url.findOneAndDelete({ _id: urlId, user: userId });
 };

@@ -38,6 +38,6 @@ export const getAnonymousShortUrlByLongUrl = async longUrl => {
   // find a URL that matches the long_url and does NOT have a user associated with it
   return await urlSchema.findOne({
     long_url: longUrl,
-    user: { $exists: false },
+    user: null,
   });
 };
