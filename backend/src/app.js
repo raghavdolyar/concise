@@ -1,6 +1,9 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import { nanoid } from 'nanoid';
+
+import Url from './models/url.model.js';
 
 const app = express();
 
@@ -19,15 +22,15 @@ import { attachUser } from './utils/attachUser.js';
 
 app.use(attachUser);
 
-import short_url from './routes/short_url.route.js';
+import shortUrl from './routes/shortUrl.route.js';
 import user_routes from './routes/user.routes.js';
 import auth_routes from './routes/auth.routes.js';
 
 app.use('/api/user', user_routes);
 app.use('/api/auth', auth_routes);
-app.use('/api/create', short_url);
+app.use('/api/create', shortUrl);
 
-import { redirectFromShortUrl } from './controller/short_url.controller.js';
+import { redirectFromShortUrl } from './controller/shortUrl.controller.js';
 
 app.get('/:id', redirectFromShortUrl);
 

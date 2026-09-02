@@ -1,5 +1,4 @@
 import { generateNanoId } from '../utils/helper.js';
-import urlSchema from '../models/shortUrl.model.js';
 import { getCustomShortUrl, saveShortUrl } from '../dao/shortUrl.js';
 
 export const createShortUrlWithoutUser = async url => {
@@ -19,6 +18,6 @@ export const createShortUrlWithUser = async (url, userId, slug = null) => {
   if (exists) throw new Error('This custom url already exists');
 
   await saveShortUrl(shortUrl, url, userId);
-  
+
   return shortUrl;
 };
