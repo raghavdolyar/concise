@@ -23,7 +23,7 @@ export const redirectFromShortUrl = wrapAsync(async (req, res) => {
   const url = await getShortUrl(id);
 
   if (!url) throw new Error('short URL not found');
-  res.redirect(url.full_url);
+  res.redirect(url.long_url);
 });
 
 export const createCustomShortUrl = wrapAsync(async (req, res) => {

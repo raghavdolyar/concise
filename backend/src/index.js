@@ -1,5 +1,4 @@
-import dotenv from 'dotenv';
-dotenv.config({ path: './.env' });
+import 'dotenv/config';
 
 import { connectDB } from './config/monogo.config.js';
 import app from './app.js';
