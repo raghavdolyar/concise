@@ -1,9 +1,6 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import { nanoid } from 'nanoid';
-
-import Url from './models/url.model.js';
 
 const app = express();
 
@@ -23,19 +20,32 @@ import { attachUser } from './utils/attachUser.js';
 app.use(attachUser);
 
 import shortUrl from './routes/shortUrl.route.js';
-import user_routes from './routes/user.routes.js';
-import auth_routes from './routes/auth.routes.js';
+import userRoutes from './routes/user.routes.js';
+import authRoutes from './routes/auth.routes.js';
 
-app.use('/api/user', user_routes);
-app.use('/api/auth', auth_routes);
+app.use('/api/user', userRoutes);
+app.use('/api/auth', authRoutes);
 app.use('/api/create', shortUrl);
 
 import { redirectFromShortUrl } from './controller/shortUrl.controller.js';
 
 app.get('/:id', redirectFromShortUrl);
 
-import { errorHandler } from './utils/errorHandler.js';
+import APIResponse from './utils/APIResponse.js';
 
-app.use(errorHandler);
+// global error handler for synchronous errors
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+
+  res
+    .status(statusCode)
+    .json(
+      new APIResponse(
+        statusCode,
+        err.errors || [],
+        err.message || 'internal server error',
+      ),
+    );
+});
 
 export default app;

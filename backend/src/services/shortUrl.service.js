@@ -1,23 +1,64 @@
 import { generateNanoId } from '../utils/helper.js';
-import { getCustomShortUrl, saveShortUrl } from '../dao/shortUrl.js';
+import {
+  getCustomShortUrl,
+  saveShortUrl,
+  getShortUrlByLongUrlAndUser,
+} from '../dao/shortUrl.js';
+import APIError from '../utils/APIError.js';
 
 export const createShortUrlWithoutUser = async url => {
-  const shortUrl = generateNanoId(7);
+  let attempts = 0;
+  const maxAttempts = 3;
 
-  if (!shortUrl) throw new Error('Short URL not generated');
+  while (attempts < maxAttempts) {
+    const shortUrl = generateNanoId(7);
+    if (!shortUrl) throw new APIError(500, 'Short URL not generated');
 
-  await saveShortUrl(shortUrl, url);
-
-  return shortUrl;
+    try {
+      await saveShortUrl(shortUrl, url);
+      return shortUrl;
+    } catch (err) {
+      if (err.statusCode === 409 && attempts < maxAttempts - 1) {
+        attempts++;
+        continue;
+      }
+      throw err;
+    }
+  }
 };
 
 export const createShortUrlWithUser = async (url, userId, slug = null) => {
-  const shortUrl = slug || generateNanoId(7);
-  const exists = await getCustomShortUrl(slug);
+  // deduplication check: if no custom slug, check if they already shortened this URL
+  if (!slug) {
+    const existingUrl = await getShortUrlByLongUrlAndUser(url, userId);
+    if (existingUrl) {
+      return existingUrl.short_url;
+    }
+  }
 
-  if (exists) throw new Error('This custom url already exists');
+  if (slug) {
+    const exists = await getCustomShortUrl(slug);
+    if (exists) throw new APIError(409, 'This custom url already exists');
+    await saveShortUrl(slug, url, userId);
+    return slug;
+  }
 
-  await saveShortUrl(shortUrl, url, userId);
+  let attempts = 0;
+  const maxAttempts = 3;
 
-  return shortUrl;
+  while (attempts < maxAttempts) {
+    const shortUrl = generateNanoId(7);
+    if (!shortUrl) throw new APIError(500, 'Short URL not generated');
+
+    try {
+      await saveShortUrl(shortUrl, url, userId);
+      return shortUrl;
+    } catch (err) {
+      if (err.statusCode === 409 && attempts < maxAttempts - 1) {
+        attempts++;
+        continue;
+      }
+      throw err;
+    }
+  }
 };

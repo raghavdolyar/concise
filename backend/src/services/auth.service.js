@@ -1,25 +1,28 @@
-import {
-  createUser,
-  findUserByEmail,
-  findUserByEmailByPassword,
-} from '../dao/user.dao.js';
-import { ConflictError } from '../utils/errorHandler.js';
+import User from '../models/user.model.js';
 import { signToken } from '../utils/helper.js';
+import APIError from '../utils/APIError.js';
 
-export const registerUser = async (name, email, password) => {
-  const user = await findUserByEmail(email);
-  if (user) throw new ConflictError('User already exists');
-  const newUser = await createUser(name, email, password);
-  const token = await signToken({ id: newUser._id });
-  return { token, user };
+export const registerUserAuth = async (name, email, password) => {
+  const user = await User.findOne({ email });
+  if (user) throw new APIError(409, 'User already exists');
+
+  const newUser = await User.create({ name, email, password });
+  const token = signToken({ id: newUser._id });
+
+  return { token, user: newUser };
 };
 
-export const loginUser = async (email, password) => {
-  const user = await findUserByEmailByPassword(email);
-  if (!user) throw new Error('Invalid email or password');
+export const loginUserAuth = async (email, password) => {
+  const user = await User.findOne({ email }).select('+password');
+  if (!user) throw new APIError(401, 'Invalid email or password');
 
   const isPasswordValid = await user.comparePassword(password);
-  if (!isPasswordValid) throw new Error('Invalid email or password');
+  if (!isPasswordValid) throw new APIError(401, 'Invalid email or password');
+
   const token = signToken({ id: user._id });
+
+  // remove password before returning
+  user.password = undefined;
+
   return { token, user };
 };

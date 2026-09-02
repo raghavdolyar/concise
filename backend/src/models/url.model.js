@@ -21,6 +21,8 @@ const urlSchema = new mongoose.Schema({
   },
 });
 
+urlSchema.index({ long_url: 1, user: 1 });
+
 const Url = mongoose.model('Url', urlSchema);
 
 export default Url;

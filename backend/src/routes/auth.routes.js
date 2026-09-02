@@ -1,17 +1,17 @@
 import express from 'express';
 import {
-  register_user,
-  login_user,
-  logout_user,
-  get_current_user,
+  registerUser,
+  loginUser,
+  logoutUser,
+  getCurrentUser,
 } from '../controller/auth.controller.js';
 import { authMiddleware } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
-router.post('/register', register_user);
-router.post('/login', login_user);
-router.post('/logout', logout_user);
-router.get('/me', authMiddleware, get_current_user);
+router.post('/register', registerUser);
+router.post('/login', loginUser);
+router.post('/logout', logoutUser);
+router.get('/me', authMiddleware, getCurrentUser);
 
 export default router;
