@@ -14,7 +14,7 @@ export const registerUser = async (name, password, email) => {
     email,
     password,
   });
-  return { message: data.message };
+  return { user: data.data, message: data.message };
 };
 
 export const logoutUser = async () => {
@@ -30,4 +30,9 @@ export const getCurrentUser = async () => {
 export const getAllUserUrls = async () => {
   const { data } = await axiosInstance.post('/api/user/urls');
   return { message: data.message, urls: data.data };
+};
+
+export const deleteUserUrl = async id => {
+  const { data } = await axiosInstance.delete(`/api/user/urls/${id}`);
+  return { message: data.message };
 };

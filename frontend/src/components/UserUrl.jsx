@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { getAllUserUrls } from '../api/user.api';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getAllUserUrls, deleteUserUrl } from '../api/user.api';
 
 const UserUrl = () => {
   const {
@@ -15,6 +15,40 @@ const UserUrl = () => {
     staleTime: 0, // Consider data stale immediately so it refetches when invalidated
   });
   const [copiedId, setCopiedId] = useState(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const queryClient = useQueryClient();
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => deleteUserUrl(id),
+    onMutate: async (deletedId) => {
+      await queryClient.cancelQueries({ queryKey: ['userUrls'] });
+      const previousData = queryClient.getQueryData(['userUrls']);
+      
+      queryClient.setQueryData(['userUrls'], (old) => {
+        if (!old || !old.urls) return old;
+        return {
+          ...old,
+          urls: old.urls.filter((u) => u._id !== deletedId),
+        };
+      });
+      
+      return { previousData };
+    },
+    onError: (err, newTodo, context) => {
+      if (context?.previousData) {
+        queryClient.setQueryData(['userUrls'], context.previousData);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['userUrls'] });
+    },
+  });
+
+  const handleDelete = (id) => {
+    deleteMutation.mutate(id);
+    setConfirmDeleteId(null);
+  };
+
   const handleCopy = (url, id) => {
     navigator.clipboard.writeText(url);
     setCopiedId(id);
@@ -27,157 +61,127 @@ const UserUrl = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center my-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+      <div className='flex justify-center my-8 text-[#333] font-bold text-[13px]'>
+        Loading...
       </div>
     );
   }
 
   if (isError) {
     return (
-      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded my-4">
+      <div className='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded my-4'>
         Error loading your URLs: {error.message}
       </div>
     );
   }
 
-  if (!urls.urls || urls.urls.length === 0) {
-    return (
-      <div className="text-center text-gray-500 my-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-        <svg
-          className="w-12 h-12 mx-auto text-gray-400 mb-3"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M13 10V3L4 14h7v7l9-11h-7z"
-          ></path>
-        </svg>
-        <p className="text-lg font-medium">No URLs found</p>
-        <p className="mt-1">You haven't created any shortened URLs yet.</p>
-      </div>
-    );
-  }
+
 
   return (
-    <div className="bg-white rounded-lg mt-5 shadow-md overflow-hidden">
-      <div className="overflow-x-auto h-56">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+    <div className='border border-gray-300 bg-white mb-4'>
+      <div className='bg-[#e1e1e1] px-3 py-1.5 border-b border-gray-300 font-bold text-[13px]'>
+        Your URLs
+      </div>
+      <div className='overflow-x-auto'>
+        <table className='w-full text-left border-collapse text-[13px]'>
+          <thead>
             <tr>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
+              <th className='border-r border-b border-gray-300 px-3 py-2 font-bold w-1/3 bg-[#f8f8f8] text-gray-700'>
                 Original URL
               </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
+              <th className='border-r border-b border-gray-300 px-3 py-2 font-bold bg-[#f8f8f8] text-gray-700'>
                 Short URL
               </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
+              <th className='border-r border-b border-gray-300 px-3 py-2 font-bold bg-[#f8f8f8] text-gray-700 w-20 text-center'>
                 Clicks
               </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
+              <th className='border-b border-gray-300 px-3 py-2 font-bold bg-[#f8f8f8] text-gray-700 w-[140px] text-center'>
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {urls.urls.reverse().map(url => (
-              <tr key={url._id} className="hover:bg-gray-50">
-                <td className="px-6 py-4">
-                  <div className="text-sm text-gray-900 truncate max-w-xs">
-                    {url.full_url}
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="text-sm">
+          <tbody>
+            {urls?.urls?.length > 0 ? (
+              [...(urls.urls || [])].reverse().map((url, index) => (
+                <tr
+                  key={url._id}
+                  className={index % 2 === 0 ? 'bg-white' : 'bg-[#f8f8f8]'}
+                >
+                  <td className='border-r border-b border-gray-300 px-3 py-2 truncate max-w-[250px]'>
+                    <a
+                      href={url.long_url}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='text-[#0000ee] hover:text-[#cc0000] hover:underline'
+                    >
+                      {url.long_url}
+                    </a>
+                  </td>
+                  <td className='border-r border-b border-gray-300 px-3 py-2'>
                     <a
                       href={`${import.meta.env.VITE_BASE_URL}/${url.short_url}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-900 hover:underline"
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='text-[#0000ee] hover:text-[#cc0000] hover:underline font-bold'
                     >
                       {`${import.meta.env.VITE_BASE_URL?.replace(/^https?:\/\//, '')}/${url.short_url}`}
                     </a>
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="text-sm text-gray-900">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                      {url.clicks} {url.clicks === 1 ? 'click' : 'clicks'}
-                    </span>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-sm font-medium">
-                  <button
-                    onClick={() =>
-                      handleCopy(
-                        `${import.meta.env.VITE_BASE_URL}/${url.short_url}`,
-                        url._id,
-                      )
-                    }
-                    className={`inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm ${
-                      copiedId === url._id
-                        ? 'bg-green-600 text-white hover:bg-green-700'
-                        : 'bg-blue-600 text-white hover:bg-blue-700'
-                    } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200`}
-                  >
-                    {copiedId === url._id ? (
-                      <>
-                        <svg
-                          className="w-4 h-4 mr-1"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M5 13l4 4L19 7"
-                          ></path>
-                        </svg>
-                        Copied!
-                      </>
-                    ) : (
-                      <>
-                        <svg
-                          className="w-4 h-4 mr-1"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"
-                          ></path>
-                        </svg>
-                        Copy URL
-                      </>
-                    )}
-                  </button>
+                  </td>
+                  <td className='border-r border-b border-gray-300 px-3 py-2 text-center'>
+                    <span className='font-bold text-[15px]'>{url.clicks}</span>
+                  </td>
+                  <td className='border-b border-gray-300 px-3 py-2 text-center'>
+                    <div className='w-[130px] mx-auto flex justify-center'>
+                      {confirmDeleteId === url._id ? (
+                        <div className='flex items-center space-x-1'>
+                          <span className='text-[13px] text-gray-700 font-bold'>Sure?</span>
+                          <button
+                            onClick={() => handleDelete(url._id)}
+                            className='bg-[#ffe6e6] text-[#cc0000] border border-gray-400 px-2 py-0.5 hover:bg-[#ffcccc] text-[12px] font-bold cursor-pointer'
+                            disabled={deleteMutation.isPending}
+                          >
+                            Yes
+                          </button>
+                          <button
+                            onClick={() => setConfirmDeleteId(null)}
+                            className='bg-[#f8f8f8] text-black border border-gray-400 px-2 py-0.5 hover:bg-[#e8e8e8] text-[12px] cursor-pointer'
+                            disabled={deleteMutation.isPending}
+                          >
+                            No
+                          </button>
+                        </div>
+                      ) : (
+                        <div className='flex space-x-2'>
+                          <button
+                            onClick={() =>
+                              handleCopy(
+                                `${import.meta.env.VITE_BASE_URL}/${url.short_url}`,
+                                url._id,
+                              )
+                            }
+                            className='bg-[#f8f8f8] text-black border border-gray-400 px-3 py-1 hover:bg-[#e8e8e8] text-[13px] cursor-pointer'
+                          >
+                            {copiedId === url._id ? 'Copied' : 'Copy'}
+                          </button>
+                          <button
+                            onClick={() => setConfirmDeleteId(url._id)}
+                            className='bg-[#f8f8f8] text-black border border-gray-400 px-3 py-1 hover:bg-[#e8e8e8] text-[13px] cursor-pointer'
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="4" className='border-b border-gray-300 px-3 py-4 text-center text-gray-700 font-bold text-[13px] bg-white'>
+                  No URLs found
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>

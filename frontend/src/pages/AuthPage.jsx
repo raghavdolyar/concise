@@ -1,16 +1,27 @@
-import React, { useState } from 'react'
-import LoginForm from '../components/LoginForm'
-import RegisterForm from '../components/RegisterForm'
+import React, { useState, useEffect } from 'react';
+import { useLocation } from '@tanstack/react-router';
+import LoginForm from '../components/LoginForm';
+import RegisterForm from '../components/RegisterForm';
 
 const AuthPage = () => {
+  const location = useLocation();
+  const isRegister = location.hash === 'register';
+  const [login, setLogin] = useState(!isRegister);
 
-    const [login, setLogin] = useState(true)
+  // Sync state if the hash changes while already on the page
+  useEffect(() => {
+    setLogin(location.hash !== 'register');
+  }, [location.hash]);
 
-    return (
-        <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4">
-            {login ? <LoginForm state={setLogin} /> : <RegisterForm state={setLogin} />}
-        </div>
-    )
-}
+  return (
+    <div className='w-full'>
+      {login ? (
+        <LoginForm state={setLogin} />
+      ) : (
+        <RegisterForm state={setLogin} />
+      )}
+    </div>
+  );
+};
 
-export default AuthPage
+export default AuthPage;

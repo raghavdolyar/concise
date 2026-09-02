@@ -1,15 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createShortUrl } from '../api/shortUrl.api';
 import { useSelector } from 'react-redux';
 import { queryClient } from '../main';
 
 const UrlForm = () => {
-  const [url, setUrl] = useState('https://www.google.com');
+  const [url, setUrl] = useState('');
   const [shortUrl, setShortUrl] = useState();
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState(null);
   const [customSlug, setCustomSlug] = useState('');
   const { isAuthenticated } = useSelector(state => state.auth);
+
+  useEffect(() => {
+    setError(null);
+    setCustomSlug('');
+    setShortUrl(null);
+    setUrl('');
+    setCopied(false);
+  }, [isAuthenticated]);
 
   const handleSubmit = async () => {
     try {
@@ -33,77 +41,85 @@ const UrlForm = () => {
   };
 
   return (
-    <div className='space-y-4'>
-      <div>
-        <label
-          htmlFor='url'
-          className='block text-sm font-medium text-gray-700 mb-1'
-        >
-          Enter your URL
-        </label>
-        <input
-          type='url'
-          id='url'
-          value={url}
-          onInput={event => setUrl(event.target.value)}
-          placeholder='https://example.com'
-          required
-          className='w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-        />
+    <div className='border border-gray-300 rounded-sm mb-4 bg-white'>
+      <div className='bg-[#e1e1e1] px-3 py-1.5 border-b border-gray-300 font-bold text-[13px]'>
+        Shorten a URL
       </div>
-      <button
-        onClick={handleSubmit}
-        type='submit'
-        className='w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50'
-      >
-        Shorten URL
-      </button>
-      {error && (
-        <div className='mt-4 p-3 bg-red-100 text-red-700 rounded-md'>
-          {error}
-        </div>
-      )}
-      {isAuthenticated && (
-        <div className='mt-4'>
-          <label
-            htmlFor='customSlug'
-            className='block text-sm font-medium text-gray-700 mb-1'
-          >
-            Custom URL (optional)
+      <div className='p-4 space-y-4'>
+        <div className='flex flex-col space-y-1'>
+          <label htmlFor='url' className='text-[13px] font-bold text-gray-700'>
+            Enter your URL:
           </label>
-          <input
-            type='text'
-            id='customSlug'
-            value={customSlug}
-            onChange={event => setCustomSlug(event.target.value)}
-            placeholder='Enter custom slug'
-            className='w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
-          />
+            <input
+              type='url'
+              id='url'
+              value={url}
+              onInput={event => setUrl(event.target.value)}
+              placeholder='https://www.example.com'
+              required
+              autoComplete='off'
+              className='w-full px-2 py-1.5 border border-gray-400 focus:outline-none focus:border-gray-500 text-[13px]'
+            />
         </div>
-      )}
-      {shortUrl && (
-        <div className='mt-6'>
-          <h2 className='text-lg font-semibold mb-2'>Your shortened URL:</h2>
-          <div className='flex items-center'>
+
+        {isAuthenticated && (
+          <div className='flex flex-col space-y-1'>
+            <label
+              htmlFor='customSlug'
+              className='text-[13px] font-bold text-gray-700'
+            >
+              Custom URL (optional):
+            </label>
             <input
               type='text'
-              readOnly
-              value={shortUrl}
-              className='flex-1 p-2 border border-gray-300 rounded-l-md bg-gray-50'
+              id='customSlug'
+              value={customSlug}
+              onChange={event => setCustomSlug(event.target.value)}
+              placeholder='Enter custom slug'
+              autoComplete='off'
+              className='w-full px-2 py-1.5 border border-gray-400 focus:outline-none focus:border-gray-500 text-[13px]'
             />
-            <button
-              onClick={handleCopy}
-              className={`px-4 py-2 rounded-r-md transition-colors duration-200 ${
-                copied
-                  ? 'bg-green-500 text-white hover:bg-green-600'
-                  : 'bg-gray-200 hover:bg-gray-300'
-              }`}
-            >
-              {copied ? 'Copied!' : 'Copy'}
-            </button>
           </div>
+        )}
+
+        <div>
+          <button
+            onClick={handleSubmit}
+            type='submit'
+            className='bg-[#f8f8f8] text-black border border-gray-400 px-4 py-1 hover:bg-[#e8e8e8] text-[13px] cursor-pointer'
+          >
+            Shorten
+          </button>
         </div>
-      )}
+
+        {error && (
+          <div className='mt-2 p-2 bg-red-100 border border-red-300 text-[#cc0000] text-[13px]'>
+            {error}
+          </div>
+        )}
+
+        {shortUrl && (
+          <div className='mt-4 pt-4 border-t border-gray-200'>
+            <div className='font-bold text-[13px] mb-1'>
+              Your shortened URL:
+            </div>
+            <div className='flex items-center'>
+              <input
+                type='text'
+                readOnly
+                value={shortUrl}
+                className='w-64 px-2 py-1 border border-gray-400 bg-gray-50 text-[13px] mr-2'
+              />
+              <button
+                onClick={handleCopy}
+                className='bg-[#f8f8f8] text-black border border-gray-400 px-3 py-1 hover:bg-[#e8e8e8] text-[13px] cursor-pointer'
+              >
+                {copied ? 'Copied!' : 'Copy'}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

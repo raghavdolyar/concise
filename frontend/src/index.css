@@ -1,1 +1,26 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+
+@layer base {
+  body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background-color: #ffffff;
+    color: #222222;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  a {
+    color: #0000ee;
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: #cc0000;
+  }
+
+  input,
+  button {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 13px;
+  }
+}
