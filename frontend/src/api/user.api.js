@@ -5,7 +5,7 @@ export const loginUser = async (password, email) => {
     email,
     password,
   });
-  return data;
+  return { user: data.data, message: data.message };
 };
 
 export const registerUser = async (name, password, email) => {
@@ -14,20 +14,20 @@ export const registerUser = async (name, password, email) => {
     email,
     password,
   });
-  return data;
+  return { message: data.message };
 };
 
 export const logoutUser = async () => {
-  const { data } = await axiosInstance.get('/api/auth/logout');
+  const { data } = await axiosInstance.post('/api/auth/logout');
   return data;
 };
 
 export const getCurrentUser = async () => {
   const { data } = await axiosInstance.get('/api/auth/me');
-  return data;
+  return { user: data.data };
 };
 
 export const getAllUserUrls = async () => {
   const { data } = await axiosInstance.post('/api/user/urls');
-  return data;
+  return { message: data.message, urls: data.data };
 };
