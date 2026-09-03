@@ -7,7 +7,10 @@ const router = express.Router();
 const validateUrl = [
   body('url')
     .isURL({ require_protocol: true })
-    .withMessage('Please provide a valid URL including http:// or https://'),
+    .withMessage('Please provide a valid URL including http:// or https://')
+    .customSanitizer((value) => {
+      return value && value.endsWith('/') ? value.slice(0, -1) : value;
+    }),
   body('slug')
     .optional({ checkFalsy: true })
     .isString()

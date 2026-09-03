@@ -1,5 +1,8 @@
 import axios from 'axios';
 
+import { store } from '../store/store.js';
+import { logout } from '../store/slice/authSlice.js';
+
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
   timeout: 10000,
@@ -24,7 +27,8 @@ axiosInstance.interceptors.response.use(
           break;
         case 401:
           console.error('Unauthorized:', data);
-          // You could redirect to login page or refresh token here
+          store.dispatch(logout());
+          window.location.href = '/auth';
           break;
         case 403:
           console.error('Forbidden:', data);
