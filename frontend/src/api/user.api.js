@@ -28,7 +28,7 @@ export const getCurrentUser = async () => {
 };
 
 export const getAllUserUrls = async () => {
-  const { data } = await axiosInstance.post('/api/user/urls');
+  const { data } = await axiosInstance.get('/api/user/urls');
   return { message: data.message, urls: data.data };
 };
 
