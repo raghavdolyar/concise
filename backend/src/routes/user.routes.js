@@ -4,7 +4,7 @@ import { authMiddleware } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
-router.post('/urls', authMiddleware, getAllUserUrls);
+router.get('/urls', authMiddleware, getAllUserUrls);
 router.delete('/urls/:id', authMiddleware, deleteUserUrl);
 
 export default router;

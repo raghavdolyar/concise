@@ -32,13 +32,3 @@ export const redirectFromShortUrl = asyncHandler(async (req, res) => {
   res.redirect(url.long_url);
 });
 
-export const createCustomShortUrl = asyncHandler(async (req, res) => {
-  const { url } = req.body;
-  const shortUrl = await createShortUrlWithoutUser(url, customUrl);
-
-  res
-    .status(200)
-    .json(
-      new APIResponse(200, { shortUrl: `${process.env.APP_URL}/${shortUrl}` }),
-    );
-});

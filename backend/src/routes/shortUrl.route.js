@@ -15,7 +15,14 @@ const validateUrl = [
     .optional({ checkFalsy: true })
     .isString()
     .isLength({ min: 3, max: 20 })
-    .withMessage('Custom slug must be between 3 and 20 characters'),
+    .withMessage('Custom slug must be between 3 and 20 characters')
+    .custom((value) => {
+      const reserved = ['api', 'auth', 'dashboard', 'login', 'register', 'admin'];
+      if (reserved.includes(value.toLowerCase())) {
+        throw new Error('This custom slug is reserved');
+      }
+      return true;
+    }),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

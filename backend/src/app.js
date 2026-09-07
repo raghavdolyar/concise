@@ -29,7 +29,13 @@ app.use('/api/create', shortUrl);
 
 import { redirectFromShortUrl } from './controller/shortUrl.controller.js';
 
-app.get('/:id', redirectFromShortUrl);
+app.get('/:id', (req, res, next) => {
+  const reserved = ['auth', 'dashboard', 'login', 'register', 'api', 'admin'];
+  if (reserved.includes(req.params.id.toLowerCase())) {
+    return next();
+  }
+  redirectFromShortUrl(req, res, next);
+});
 
 import APIResponse from './utils/APIResponse.js';
 
