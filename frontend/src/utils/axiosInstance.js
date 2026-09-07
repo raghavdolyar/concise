@@ -28,7 +28,9 @@ axiosInstance.interceptors.response.use(
         case 401:
           console.error('Unauthorized:', data);
           store.dispatch(logout());
-          window.location.href = '/auth';
+          import('../main.jsx').then(({ router }) => {
+            router.navigate({ to: '/auth' });
+          });
           break;
         case 403:
           console.error('Forbidden:', data);

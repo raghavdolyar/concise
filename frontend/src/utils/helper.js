@@ -9,13 +9,21 @@ export const checkAuth = async ({ context }) => {
       queryKey: ['currentUser'],
       queryFn: getCurrentUser,
     });
-    if (!user) return false;
+
+    if (!user) throw redirect({ to: '/auth' });
+
     store.dispatch(login(user));
+
     const { isAuthenticated } = store.getState().auth;
-    if (!isAuthenticated) return false;
+
+    if (!isAuthenticated) throw redirect({ to: '/auth' });
+    
     return true;
   } catch (error) {
     console.log(error);
-    return redirect({ to: '/auth' });
+    if (error.status === 302 || error.isRedirect) {
+      throw error;
+    }
+    throw redirect({ to: '/auth' });
   }
 };
