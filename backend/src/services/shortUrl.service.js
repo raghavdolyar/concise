@@ -44,19 +44,23 @@ export const createShortUrlWithUser = async (url, userId, slug = null) => {
   }
 
   if (slug) {
-    const exists = await getCustomShortUrl(slug);
-    if (exists) {
-      // If the same user is trying to create the same custom slug for the exact same long URL, just return it.
-      if (
-        exists.long_url === url &&
-        exists.user?.toString() === userId.toString()
-      ) {
-        return exists.short_url;
+    try {
+      await saveShortUrl(slug, url, userId);
+      return slug;
+    } catch (err) {
+      if (err.statusCode === 409) {
+        const exists = await getCustomShortUrl(slug);
+        if (
+          exists &&
+          exists.long_url === url &&
+          exists.user?.toString() === userId.toString()
+        ) {
+          return exists.short_url;
+        }
+        throw new APIError(409, 'Custom slug is already taken');
       }
-      throw new APIError(409, 'Custom slug is already taken');
+      throw err;
     }
-    await saveShortUrl(slug, url, userId);
-    return slug;
   }
 
   let attempts = 0;
