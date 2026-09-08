@@ -19,10 +19,10 @@ export const createUser = async (name, email, password) => {
   return newUser;
 };
 
-export const getAllUserUrlsDao = async id => {
+export const getAllUserUrls = async id => {
   return await Url.find({ user: id });
 };
 
-export const deleteUserUrlDao = async (urlId, userId) => {
+export const deleteUserUrl = async (urlId, userId) => {
   return await Url.findOneAndDelete({ _id: urlId, user: userId });
 };

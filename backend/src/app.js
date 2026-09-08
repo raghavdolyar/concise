@@ -32,12 +32,18 @@ import { redirectFromShortUrl } from './controller/shortUrl.controller.js';
 app.get('/:id', (req, res, next) => {
   const reserved = ['auth', 'dashboard', 'login', 'register', 'api', 'admin'];
   if (reserved.includes(req.params.id.toLowerCase())) {
-    return next();
+    return next(new APIError(404, 'API route not found'));
   }
   redirectFromShortUrl(req, res, next);
 });
 
 import APIResponse from './utils/APIResponse.js';
+import APIError from './utils/APIError.js';
+
+// global 404 handler for unhandled routes
+app.use((req, res, next) => {
+  next(new APIError(404, 'API route not found'));
+});
 
 // global error handler for synchronous errors
 app.use((err, req, res, next) => {

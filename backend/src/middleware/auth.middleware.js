@@ -5,15 +5,18 @@ import asyncHandler from '../utils/asyncHandler.js';
 
 export const authMiddleware = asyncHandler(async (req, res, next) => {
   const token = req.cookies.accessToken;
-  if (!token) throw new APIError(401, 'Unauthorized');
+
+  if (!token) throw new APIError(401, 'unauthorized');
 
   try {
     const decoded = verifyToken(token);
-    const user = await findUserById(decoded);
-    if (!user) throw new APIError(401, 'Unauthorized');
+    const user = await findUserById(decoded.id);
+
+    if (!user) throw new APIError(401, 'unauthorized');
     req.user = user;
+
     next();
   } catch (error) {
-    throw new APIError(401, 'Unauthorized');
+    throw new APIError(401, 'unauthorized');
   }
 });

@@ -7,19 +7,26 @@ const router = express.Router();
 const validateUrl = [
   body('url')
     .isURL({ require_protocol: true })
-    .withMessage('Please provide a valid URL including http:// or https://')
-    .customSanitizer((value) => {
+    .withMessage('please provide a valid URL including http:// or https://')
+    .customSanitizer(value => {
       return value && value.endsWith('/') ? value.slice(0, -1) : value;
     }),
   body('slug')
     .optional({ checkFalsy: true })
     .isString()
     .isLength({ min: 3, max: 20 })
-    .withMessage('Custom slug must be between 3 and 20 characters')
-    .custom((value) => {
-      const reserved = ['api', 'auth', 'dashboard', 'login', 'register', 'admin'];
+    .withMessage('custom slug must be between 3 and 20 characters')
+    .custom(value => {
+      const reserved = [
+        'api',
+        'auth',
+        'dashboard',
+        'login',
+        'register',
+        'admin',
+      ];
       if (reserved.includes(value.toLowerCase())) {
-        throw new Error('This custom slug is reserved');
+        throw new Error('this custom slug is reserved');
       }
       return true;
     }),

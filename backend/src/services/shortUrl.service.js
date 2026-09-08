@@ -8,8 +8,8 @@ import {
 import APIError from '../utils/APIError.js';
 
 export const createShortUrlWithoutUser = async url => {
-  // Anonymous Deduplication check (Global Deduplication)
   const existingUrl = await getAnonymousShortUrlByLongUrl(url);
+
   if (existingUrl) {
     return existingUrl.short_url;
   }
@@ -19,7 +19,7 @@ export const createShortUrlWithoutUser = async url => {
 
   while (attempts < maxAttempts) {
     const shortUrl = generateNanoId(7);
-    if (!shortUrl) throw new APIError(500, 'Short URL not generated');
+    if (!shortUrl) throw new APIError(500, 'short URL not generated');
 
     try {
       await saveShortUrl(shortUrl, url);
@@ -35,7 +35,6 @@ export const createShortUrlWithoutUser = async url => {
 };
 
 export const createShortUrlWithUser = async (url, userId, slug = null) => {
-  // Deduplication check: if no custom slug, check if they already shortened this URL
   if (!slug) {
     const existingUrl = await getShortUrlByLongUrlAndUser(url, userId);
     if (existingUrl) {
@@ -57,7 +56,7 @@ export const createShortUrlWithUser = async (url, userId, slug = null) => {
         ) {
           return exists.short_url;
         }
-        throw new APIError(409, 'Custom slug is already taken');
+        throw new APIError(409, 'custom slug is already taken');
       }
       throw err;
     }

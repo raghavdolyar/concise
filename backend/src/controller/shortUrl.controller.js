@@ -31,4 +31,3 @@ export const redirectFromShortUrl = asyncHandler(async (req, res) => {
   if (!url) throw new APIError(404, 'short URL not found');
   res.redirect(url.long_url);
 });
-
