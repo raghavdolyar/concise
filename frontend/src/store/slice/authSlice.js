@@ -6,7 +6,7 @@ try {
   if (userStr && userStr !== 'undefined') {
     savedUser = JSON.parse(userStr);
   }
-} catch (e) {
+} catch {
   savedUser = null;
 }
 

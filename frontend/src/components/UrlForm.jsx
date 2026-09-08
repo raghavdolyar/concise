@@ -19,7 +19,8 @@ const UrlForm = () => {
     setCopied(false);
   }, [isAuthenticated]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
       const shortUrl = await createShortUrl(url, customSlug);
       setShortUrl(shortUrl);
@@ -45,7 +46,7 @@ const UrlForm = () => {
       <div className='bg-[#e1e1e1] px-3 py-1.5 border-b border-gray-300 font-bold text-[13px]'>
         Shorten a URL
       </div>
-      <div className='p-4 space-y-4'>
+      <form onSubmit={handleSubmit} className='p-4 space-y-4'>
         <div className='flex flex-col space-y-1'>
           <label htmlFor='url' className='text-[13px] font-bold text-gray-700'>
             Enter your URL:
@@ -84,7 +85,6 @@ const UrlForm = () => {
 
         <div>
           <button
-            onClick={handleSubmit}
             type='submit'
             className='bg-[#f8f8f8] text-black border border-gray-400 px-4 py-1 hover:bg-[#e8e8e8] text-[13px] cursor-pointer'
           >
@@ -111,6 +111,7 @@ const UrlForm = () => {
                 className='flex-1 px-2 py-1 border border-gray-400 bg-gray-50 text-[13px] mr-2'
               />
               <button
+                type="button"
                 onClick={handleCopy}
                 className='bg-[#f8f8f8] text-black border border-gray-400 px-3 py-1 hover:bg-[#e8e8e8] text-[13px] cursor-pointer'
               >
@@ -119,7 +120,7 @@ const UrlForm = () => {
             </div>
           </div>
         )}
-      </div>
+      </form>
     </div>
   );
 };

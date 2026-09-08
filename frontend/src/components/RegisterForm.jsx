@@ -51,7 +51,7 @@ const RegisterForm = ({ state }) => {
       <div className='bg-[#e1e1e1] px-3 py-1.5 border-b border-gray-300 font-bold text-[13px]'>
         Register a new account
       </div>
-      <div className='p-6 space-y-4'>
+      <form onSubmit={handleSubmit} className='p-6 space-y-4'>
         {error && (
           <div className='p-2 bg-red-100 border border-red-300 text-[#cc0000] text-[13px]'>
             {error}
@@ -118,7 +118,6 @@ const RegisterForm = ({ state }) => {
           <button
             className={`bg-[#f8f8f8] text-black border border-gray-400 px-6 py-1 hover:bg-[#e8e8e8] text-[13px] cursor-pointer ${loading ? 'opacity-50' : ''}`}
             type='submit'
-            onClick={handleSubmit}
             disabled={loading}
           >
             {loading ? 'Registering...' : 'Register'}
@@ -136,7 +135,7 @@ const RegisterForm = ({ state }) => {
             </span>
           </p>
         </div>
-      </div>
+      </form>
     </div>
   );
 };
