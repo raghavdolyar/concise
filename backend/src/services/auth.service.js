@@ -3,7 +3,7 @@ import { signToken } from '../utils/helper.js';
 import APIError from '../utils/APIError.js';
 
 export const registerUserAuth = async (name, email, password) => {
-  const user = await User.findOne({ $or: [{ email }, { name }] });
+  const user = await User.findOne({ $or: [{ email }, { name }] }).lean();
 
   if (user) {
     if (user.email === email)

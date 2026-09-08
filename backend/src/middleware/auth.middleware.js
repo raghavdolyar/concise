@@ -1,22 +1,11 @@
-import { findUserById } from '../dao/user.dao.js';
-import { verifyToken } from '../utils/helper.js';
 import APIError from '../utils/APIError.js';
 import asyncHandler from '../utils/asyncHandler.js';
 
 export const authMiddleware = asyncHandler(async (req, res, next) => {
-  const token = req.cookies.accessToken;
-
-  if (!token) throw new APIError(401, 'unauthorized');
-
-  try {
-    const decoded = verifyToken(token);
-    const user = await findUserById(decoded.id);
-
-    if (!user) throw new APIError(401, 'unauthorized');
-    req.user = user;
-
-    next();
-  } catch (error) {
+  // if attachUser failed to find a valid token/user, req.user will be undefined.
+  if (!req.user) {
     throw new APIError(401, 'unauthorized');
   }
+
+  next();
 });

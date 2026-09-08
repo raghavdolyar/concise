@@ -20,7 +20,7 @@ export const createUser = async (name, email, password) => {
 };
 
 export const getAllUserUrls = async id => {
-  return await Url.find({ user: id });
+  return await Url.find({ user: id }).lean();
 };
 
 export const deleteUserUrl = async (urlId, userId) => {

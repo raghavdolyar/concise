@@ -30,11 +30,11 @@ export const getShortUrl = async shortUrl => {
 };
 
 export const getCustomShortUrl = async slug => {
-  return await Url.findOne({ short_url: slug });
+  return await Url.findOne({ short_url: slug }).lean();
 };
 
 export const getShortUrlByLongUrlAndUser = async (longUrl, userId) => {
-  return await Url.findOne({ long_url: longUrl, user: userId });
+  return await Url.findOne({ long_url: longUrl, user: userId }).lean();
 };
 
 export const getAnonymousShortUrlByLongUrl = async longUrl => {
@@ -42,5 +42,5 @@ export const getAnonymousShortUrlByLongUrl = async longUrl => {
   return await Url.findOne({
     long_url: longUrl,
     user: null,
-  });
+  }).lean();
 };

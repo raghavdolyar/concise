@@ -1,5 +1,8 @@
 import asyncHandler from '../utils/asyncHandler.js';
-import { getAllUserUrls as fetchAllUserUrls, deleteUserUrl as removeUserUrl } from '../dao/user.dao.js';
+import {
+  getAllUserUrls as fetchAllUserUrls,
+  deleteUserUrl as removeUserUrl,
+} from '../dao/user.dao.js';
 import APIResponse from '../utils/APIResponse.js';
 import APIError from '../utils/APIError.js';
 
