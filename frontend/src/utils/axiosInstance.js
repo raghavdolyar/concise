@@ -5,7 +5,7 @@ import { logout } from '../store/slice/authSlice.js';
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_BASE_URL,
-  timeout: 10000,
+  timeout: 60000,
   withCredentials: true,
 });
 
